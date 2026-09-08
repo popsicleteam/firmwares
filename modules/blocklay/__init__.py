@@ -1,17 +1,11 @@
 import asyncio
 
-__all__ = (
-    "call",
-    "stop",
-    "task",
-    "receiver",
-    "broadcast",
-    "start",
-    "shutdown",
-)
+from .event import Event
+
+__all__ = ("call", "stop", "task", "broadcast", "start", "shutdown", "Event")
 
 _task_groups = None
-_receiver_groups = None
+_event_groups = None
 
 asyncio.new_event_loop()
 
@@ -39,40 +33,47 @@ def stop(task_group_name):
         task_group.append(current_task)
 
 
-def task(condition_flag=None, *args):
-    if condition_flag is None:
-        return call
+def event_task(event_name):
+    global _event_groups
+    if _event_groups is None:
+        _event_groups = {}
 
-    def condition_task(task_script):
-        async def condition():
+    def task(task_script):
+        event = _event_groups.setdefault(event_name, Event())
+
+        async def script():
             while True:
-                if await condition_flag():
+                await event.wait()
+                call(task_script)
+                await asyncio.sleep_ms(1)
+                event.clear()
+
+        call(script, "blocklay")
+
+    return task
+
+
+def flag_task(flag):
+    def task(task_script):
+        async def script():
+            while True:
+                if await flag():
                     call(task_script)
                 await asyncio.sleep_ms(5)
 
-        call(condition, "blocklay")
+        call(script, "blocklay")
 
-    return condition_task
-
-
-def receiver(msg):
-    global _receiver_groups
-    if _receiver_groups is None:
-        _receiver_groups = {}
-
-    receiver_scripts = _receiver_groups.setdefault(msg, [])
-
-    def receiver_task(task_script):
-        receiver_scripts.append(task_script)
-
-    return receiver_task
+    return task
 
 
-def broadcast(msg):
-    if _receiver_groups is not None:
-        receiver_scripts = _receiver_groups.setdefault(msg, [])
-        for task_script in receiver_scripts:
-            call(task_script)
+def task(event_flag=None):
+    if type(event_flag) is str:
+        return event_task(event_flag)
+
+    if callable(event_flag):
+        return flag_task(event_flag)
+
+    return call
 
 
 def reset():
@@ -80,16 +81,14 @@ def reset():
     event_loop.stop()
     event_loop.close()
 
-    global _task_groups, _receiver_groups
+    global _task_groups, _event_groups
     if _task_groups is not None:
         _task_groups.clear()
         _task_groups = None
 
-    if _receiver_groups is not None:
-        for receiver_scripts in _receiver_groups.values():
-            receiver_scripts.clear()
-        _receiver_groups.clear()
-        _receiver_groups = None
+    if _event_groups is not None:
+        _event_groups.clear()
+        _event_groups = None
 
 
 def start():
@@ -104,3 +103,9 @@ def start():
 
 def shutdown():
     raise KeyboardInterrupt
+
+
+def broadcast(event):
+    if type(event) is str:
+        event = _event_groups.setdefault(event, Event())
+    event.set()
