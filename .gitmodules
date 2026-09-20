@@ -1,5 +1,5 @@
 [submodule "micropython"]
-	path = micropython
+	path = lib/micropython
 	url = https://github.com/micropython/micropython.git
 [submodule "lib/lv_binding_micropython"]
 	path = lib/lv_binding_micropython
