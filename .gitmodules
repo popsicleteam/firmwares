@@ -7,3 +7,6 @@
 [submodule "modules/fos"]
 	path = modules/fos
 	url = https://github.com/kankungyip/fos.git
+[submodule "modules/blocklay"]
+	path = modules/blocklay
+	url = https://github.com/popsicleteam/blocklay-lib.git
