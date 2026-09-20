@@ -1,4 +1,4 @@
-include("$(MPY_DIR)/../modules")
+include("$(MOD_DIR)/")
 
 # LVGL
-include("$(MPY_DIR)/../modules/lvgl")
+include("$(MOD_DIR)/lvgl")

@@ -1,8 +1,8 @@
 include("$(PORT_DIR)/boards")
 
-# include("$(MPY_DIR)/../modules/blocklay")
-include("$(MPY_DIR)/../modules/fos")
-include("$(MPY_DIR)/../modules/macutils")
+include("$(MOD_DIR)/blocklay")
+include("$(MOD_DIR)/fos")
+include("$(MOD_DIR)/macutils")
 
 require("base64")
 require("hmac")

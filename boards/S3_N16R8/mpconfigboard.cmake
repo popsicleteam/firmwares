@@ -11,8 +11,8 @@ list(APPEND SDKCONFIG_DEFAULTS
   ${MICROPY_BOARD_DIR}/sdkconfig.board
 )
 
-set(C_MODULES_DIR ${MICROPY_DIR}/../cmodules)
+set(C_MODULES_DIR ${MICROPY_DIR}/../../cmodules)
+set(MICROPY_MANIFEST_MOD_DIR ${MICROPY_DIR}/../../modules)
 
 set(USER_C_MODULES ${C_MODULES_DIR}/cmodules.esp32.lvgl.cmake)
-
-set(MICROPY_FROZEN_MANIFEST ${MICROPY_DIR}/../modules/manifest.esp32.lvgl.py)
+set(MICROPY_FROZEN_MANIFEST ${MICROPY_MANIFEST_MOD_DIR}/manifest.esp32.py)

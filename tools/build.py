@@ -34,9 +34,9 @@ def clean(board_info):
     board = board_info["id"]
     port = board_info["port"]
 
-    os.chdir(f"micropython/ports/{port}")
+    os.chdir(f"lib/micropython/ports/{port}")
     os.system(f"make clean BOARD={board}")
-    os.chdir("../../../")
+    os.chdir("../../../..")
 
 
 # install idf components from cmoudles.cmake
@@ -57,10 +57,10 @@ def load_yaml(file):
 
 
 def install_idf_comps(components):
-    os.chdir("micropython/ports/esp32")
+    os.chdir("lib/micropython/ports/esp32")
     for comp_id in components:
         os.system(f'idf.py add-dependency "{comp_id}"')
-    os.chdir("../../../")
+    os.chdir("../../../..")
 
 
 def get_idf_comps(board, file):
@@ -115,10 +115,10 @@ def read_partitions_from(files):
 
 def build(board_info):
     # git restore
-    os.chdir("micropython")
+    os.chdir("lib/micropython")
     os.system("git restore .")
     os.system("git clean -df")
-    os.chdir("..")
+    os.chdir("../..")
 
     print("\nbuilding...\n")
 
@@ -138,7 +138,7 @@ def build(board_info):
     board_files.extend(walk_dir(board_dir))
 
     for file in board_files:
-        destfile = f"micropython/{file.replace(f'boards/{board}/', f'ports/{port}/boards/{board}/')}"
+        destfile = f"lib/micropython/{file.replace(f'boards/{board}/', f'ports/{port}/boards/{board}/')}"
         dir = os.path.dirname(destfile)
         if not is_exists(dir):
             os.makedirs(dir)
@@ -153,7 +153,7 @@ def build(board_info):
         idf_components = get_idf_comps(board, cmodules_file)
         install_idf_comps(idf_components)
 
-    os.chdir(f"micropython/ports/{port}")
+    os.chdir(f"lib/micropython/ports/{port}")
 
     # write MICROPY_BANNER_NAME_AND_VERSION and MICROPY_BANNER_MACHINE
     with open(f"boards/{board}/mpconfigboard.h", "a") as f:
@@ -171,9 +171,9 @@ def build(board_info):
     # build micropython
     os.system(f"make submodules BOARD={board}")
     os.system(f"make BOARD={board}")
-    os.chdir("../../../")
+    os.chdir("../../../..")
 
-    firmware_path = f"micropython/ports/{port}/build-{board}/firmware.bin"
+    firmware_path = f"lib/micropython/ports/{port}/build-{board}/firmware.bin"
     if not is_exists(firmware_path):
         return
 

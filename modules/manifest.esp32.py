@@ -1,7 +1,7 @@
-include("$(MPY_DIR)/../modules/")
+include("$(MOD_DIR)/")
 
-include("$(MPY_DIR)/../modules/blerepl")
-include("$(MPY_DIR)/../modules/settings")
+include("$(MOD_DIR)/blerepl")
+include("$(MOD_DIR)/settings")
 
 require("aioble")
 require("aioespnow")
