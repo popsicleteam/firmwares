@@ -185,23 +185,24 @@ def build(board_info):
     if not is_exists("dist"):
         os.makedirs("dist")
 
-    partitions = read_partitions_from(board_files)
-    if partitions and is_exists(resources_dir) and port == "esp32":
-        print("\ncombining resources...\n")
+    cmd_str = f"cp {firmware_path} {out_firmware}"
+    if is_exists(resources_dir) and port == "esp32":
+        partitions = read_partitions_from(board_files)
+        if partitions:
+            print("\ncombining resources...\n")
 
-        for partition in partitions:
-            if partition[0] == "resource":
-                cmd_str = f"python3 tools/combine/combine.py --dir {resources_dir} "
-                cmd_str += (
-                    f"--address {partition[3].strip()} --size {partition[4].strip()} "
-                )
-                if "flash offset" in board_info:
-                    cmd_str += f"--offset {hex(board_info['flash offset'])} "
-                cmd_str += f"{firmware_path} {out_firmware}"
-                os.system(cmd_str)
-                break
-    else:
-        os.system(f"cp {firmware_path} {out_firmware}")
+            for partition in partitions:
+                if partition[0] == "resource":
+                    cmd_str = f"python3 tools/combine/combine.py "
+                    cmd_str += f"--dir {resources_dir} "
+                    cmd_str += f"--address {partition[3].strip()} "
+                    cmd_str += f"--size {partition[4].strip()} "
+                    if "flash offset" in board_info:
+                        cmd_str += f"--offset {hex(board_info['flash offset'])} "
+                    cmd_str += f"{firmware_path} {out_firmware}"
+                    break
+
+    os.system(cmd_str)
 
     print("\nSuccessfully!")
     print(f"Generated {out_firmware}")
