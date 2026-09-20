@@ -27,7 +27,7 @@ async def code1():
     y = 0
     """
     print("code1")
-    blocklay.call(block1, "hello")
+    await block1("hello")
     while True:
         times += 1
         await asyncio.sleep(1)
@@ -126,5 +126,5 @@ async def block1(opt1=1, arg1: str = "", arg2: float = 0.0) -> None:
     zh-hans = "菜单选项2"
     """
     await asyncio.sleep(1)
-    blocklay.broadcast("hi")
+    blocklay.call("hi")
     print(opt1)
