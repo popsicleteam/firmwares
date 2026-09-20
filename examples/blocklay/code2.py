@@ -1,11 +1,11 @@
-from blocklay import *
+import blocklay
 
 
-@task("hi")
+@blocklay.task("hi")
 async def code1():
     print("hi3")
 
 
-@task("hi")
+@blocklay.task("hi")
 async def code2():
     print("hi4")
