@@ -2,8 +2,6 @@ import asyncio
 
 import blocklay
 
-times = 1
-
 
 async def snippet1():
     """
@@ -19,7 +17,6 @@ async def snippet1():
 
 @blocklay.task()
 async def code1():
-    global times
     """
     # 任务，启动时自动调用
     #
@@ -29,7 +26,7 @@ async def code1():
     print("code1")
     await block1("hello")
     while True:
-        times += 1
+        blocklay.data["⌛️"] += 1
         await asyncio.sleep(1)
 
 
@@ -68,19 +65,18 @@ async def code4():
 # 非可见代码
 # 条件任务的判断条件
 async def __flag1():
-    return times > 5
+    return blocklay.data["⌛️"] > 5
 
 
 @blocklay.task(__flag1)
 async def code5():
-    global times
     """
     # 条件任务
     #
     x = 0
     y = 0
     """
-    times = 0
+    blocklay.data["⌛️"] = 0
     print("code5")
 
 

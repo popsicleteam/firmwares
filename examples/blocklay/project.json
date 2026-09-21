@@ -2,8 +2,8 @@
   "name": "main",
   "description": "",
   "urls": [
-    ["/main.py", "/main.py"],
-    ["/code1.py", "/code1.py"],
-    ["/code2.py", "/code2.py"]
+    ["main.py", "/main.py"],
+    ["code1.py", "/code1.py"],
+    ["code2.py", "/code2.py"]
   ]
 }
