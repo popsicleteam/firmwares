@@ -1,0 +1,1 @@
+../../../lib/lv_binding/driver/esp32/lv_spi.py

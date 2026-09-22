@@ -1,1 +1,0 @@
-../../../lib/lv_binding_micropython/driver/generic/xpt2046.py

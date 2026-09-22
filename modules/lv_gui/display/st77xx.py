@@ -1,0 +1,1 @@
+../../../lib/lv_binding/driver/generic/st77xx.py

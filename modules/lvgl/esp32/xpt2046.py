@@ -1,1 +1,0 @@
-../../../lib/lv_binding_micropython/driver/esp32/xpt2046.py

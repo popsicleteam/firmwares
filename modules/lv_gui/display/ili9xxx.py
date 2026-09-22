@@ -1,0 +1,1 @@
+../../../lib/lv_binding/driver/generic/ili9xxx.py

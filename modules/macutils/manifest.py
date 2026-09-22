@@ -1,6 +1,1 @@
-package(
-    "macutils",
-    ("__init__.py",),
-    base_path="..",
-    opt=3,
-)
+module("macutils.py", base_path=".", opt=3)

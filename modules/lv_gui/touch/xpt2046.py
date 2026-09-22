@@ -1,0 +1,1 @@
+../../../lib/lv_binding/driver/generic/xpt2046.py

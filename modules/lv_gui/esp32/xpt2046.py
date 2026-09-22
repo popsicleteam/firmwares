@@ -1,0 +1,1 @@
+../../../lib/lv_binding/driver/esp32/xpt2046.py

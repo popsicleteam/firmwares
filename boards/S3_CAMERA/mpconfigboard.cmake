@@ -15,4 +15,4 @@ set(C_MODULES_DIR ${MICROPY_DIR}/../../cmodules)
 set(MICROPY_MANIFEST_MOD_DIR ${MICROPY_DIR}/../../modules)
 
 set(USER_C_MODULES ${MICROPY_BOARD_DIR}/cmodules.cmake)
-set(MICROPY_FROZEN_MANIFEST ${MICROPY_DIR}/../../modules/manifest.esp32.py)
+set(MICROPY_FROZEN_MANIFEST ${MICROPY_BOARD_DIR}/manifest.py)

@@ -11,6 +11,12 @@
  *    - add the path as include path
  */
 
+/* fixed 1.29.0: mp_obj_int_to_bytes_impl */
+#define mp_obj_int_to_bytes_impl(self_in, big_endian, len, buf)               \
+  do {                                                                        \
+    mp_obj_int_to_bytes((self_in), (len), (buf), (big_endian), false, false); \
+  } while (0)
+
 /* clang-format off */
 #if 1 /*Set it to "1" to enable content*/
 
