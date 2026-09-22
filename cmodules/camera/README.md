@@ -74,9 +74,9 @@ Fork: [https://github.com/lemariva/micropython-camera-driver](https://github.com
 
 卸载摄像头，释放使用的硬件资源。
 
-#### `camera.capture()`
+#### `camera.snapshot()`
 
-拍摄 1 帧图片。
+获取 1 帧静态图片。
 
 ### 画面设置函数
 

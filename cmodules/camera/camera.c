@@ -158,7 +158,7 @@ static mp_obj_t camera_deinit() {
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(camera_deinit_obj, camera_deinit);
 
-static mp_obj_t camera_capture(size_t n_pos_args, const mp_obj_t* pos_args, mp_map_t* kw_args) {
+static mp_obj_t camera_snapshot(size_t n_pos_args, const mp_obj_t* pos_args, mp_map_t* kw_args) {
   enum { ARG_quality };
   static const mp_arg_t allowed_args[] = {
       {MP_QSTR_quality, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1}},
@@ -170,7 +170,7 @@ static mp_obj_t camera_capture(size_t n_pos_args, const mp_obj_t* pos_args, mp_m
 
   camera_fb_t* fb = esp_camera_fb_get();
   if (!fb) {
-    ESP_LOGE(TAG, "Camera Capture Failed");
+    ESP_LOGE(TAG, "Camera snapshot Failed");
     return mp_const_false;
   }
 
@@ -205,7 +205,7 @@ static mp_obj_t camera_capture(size_t n_pos_args, const mp_obj_t* pos_args, mp_m
   esp_camera_fb_return(fb);
   return image;
 }
-static MP_DEFINE_CONST_FUN_OBJ_KW(camera_capture_obj, 0, camera_capture);
+static MP_DEFINE_CONST_FUN_OBJ_KW(camera_snapshot_obj, 0, camera_snapshot);
 
 static mp_obj_t camera_flip(mp_obj_t direction) {
   sensor_t* s = esp_camera_sensor_get();
@@ -344,7 +344,7 @@ static const mp_rom_map_elem_t camera_module_globals_table[] = {
 
     {MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&camera_init_obj)},
     {MP_ROM_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&camera_deinit_obj)},
-    {MP_ROM_QSTR(MP_QSTR_capture), MP_ROM_PTR(&camera_capture_obj)},
+    {MP_ROM_QSTR(MP_QSTR_snapshot), MP_ROM_PTR(&camera_snapshot_obj)},
     {MP_ROM_QSTR(MP_QSTR_flip), MP_ROM_PTR(&camera_flip_obj)},
     {MP_ROM_QSTR(MP_QSTR_mirror), MP_ROM_PTR(&camera_mirror_obj)},
     {MP_ROM_QSTR(MP_QSTR_framesize), MP_ROM_PTR(&camera_framesize_obj)},
