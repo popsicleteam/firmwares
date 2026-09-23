@@ -10,6 +10,10 @@ import sys
 import yaml
 from gen_l10n import gen_l10n
 
+root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+mpy_dir = os.path.join(root, "lib", "micropython")
+dist_dir = os.path.join(root, "dist")
+
 # add arguments
 #
 parser = argparse.ArgumentParser(description="MicroPython Board builder.")
@@ -34,9 +38,8 @@ def clean(board_info):
     board = board_info["id"]
     port = board_info["port"]
 
-    os.chdir(f"lib/micropython/ports/{port}")
+    os.chdir(os.path.join(mpy_dir, "ports", port))
     os.system(f"make clean BOARD={board}")
-    os.chdir("../../../..")
 
 
 # install idf components from cmoudles.cmake
@@ -57,10 +60,9 @@ def load_yaml(file):
 
 
 def install_idf_comps(components):
-    os.chdir("lib/micropython/ports/esp32")
+    os.chdir(os.path.join(mpy_dir, "ports", "esp32"))
     for comp_id in components:
         os.system(f'idf.py add-dependency "{comp_id}"')
-    os.chdir("../../../..")
 
 
 def get_idf_comps(board, file):
@@ -75,9 +77,11 @@ def get_idf_comps(board, file):
             if match:
                 mod_name = match.group(2)
                 yml_path = (
-                    f"cmodules/{mod_name}/idf_component.yml"
+                    os.path.join(root, "cmodules", mod_name, "idf_component.yml")
                     if match.group(1) == "C_MODULES_DIR"
-                    else f"boards/{board}/cmodules/{mod_name}/idf_component.yml"
+                    else os.path.join(
+                        root, "boards", board, "cmodules", mod_name, "idf_component.yml"
+                    )
                 )
                 idf_comps = load_yaml(yml_path)
                 if idf_comps:
@@ -115,10 +119,11 @@ def read_partitions_from(files):
 
 def build(board_info):
     # git restore
-    os.chdir("lib/micropython")
+
+    os.chdir(mpy_dir)
+    os.system("git checkout v1.29.0")
     os.system("git restore .")
     os.system("git clean -df")
-    os.chdir("../..")
 
     print("\nbuilding...\n")
 
@@ -126,11 +131,12 @@ def build(board_info):
     port = board_info["port"]
     version = board_info["version"]
 
-    board_dir = f"boards/{board}"
+    board_dir = os.path.join(root, "boards", board)
+    mpy_board_dir = os.path.join(mpy_dir, "ports", port, "boards", board)
 
     # import board build script
-    if is_exists(f"boards/{board}/build.py"):
-        sys.path.insert(0, os.getcwd())
+    if is_exists(os.path.join(board_dir, "build.py")):
+        sys.path.insert(0, root)
         importlib.import_module(f"boards.{board}.build")
 
     # coping board files
@@ -138,25 +144,26 @@ def build(board_info):
     board_files.extend(walk_dir(board_dir))
 
     for file in board_files:
-        destfile = f"lib/micropython/{file.replace(f'boards/{board}/', f'ports/{port}/boards/{board}/')}"
+        destfile = file.replace(root, mpy_dir).replace(
+            os.path.join("boards", board), os.path.join("ports", port, "boards", board)
+        )
         dir = os.path.dirname(destfile)
         if not is_exists(dir):
             os.makedirs(dir)
         shutil.copy(file, destfile)
 
     # generate l10n file
-    gen_l10n(board_info)
+    l10n_file = os.path.join(mpy_board_dir, "modules", "l10n.py")
+    gen_l10n(board_info, l10n_file)
 
     # esp32 install idf components
-    cmodules_file = f"{board_dir}/cmodules.cmake"
+    cmodules_file = os.path.join(mpy_board_dir, "cmodules.cmake")
     if port == "esp32" and is_exists(cmodules_file):
         idf_components = get_idf_comps(board, cmodules_file)
         install_idf_comps(idf_components)
 
-    os.chdir(f"lib/micropython/ports/{port}")
-
     # write MICROPY_BANNER_NAME_AND_VERSION and MICROPY_BANNER_MACHINE
-    with open(f"boards/{board}/mpconfigboard.h", "a") as f:
+    with open(os.path.join(mpy_board_dir, "mpconfigboard.h"), "a") as f:
         f.write(f"""
 #undef MICROPY_VERSION_STRING
 #define MICROPY_VERSION_STRING "{version}"
@@ -169,21 +176,25 @@ def build(board_info):
 """)
 
     # build micropython
+    os.chdir(os.path.join(mpy_dir, "ports", port))
     os.system(f"make submodules BOARD={board}")
     os.system(f"make BOARD={board}")
-    os.chdir("../../../..")
 
-    firmware_path = f"lib/micropython/ports/{port}/build-{board}/firmware.bin"
+    firmware_path = os.path.join(
+        mpy_dir, "ports", port, "build-" + board, "firmware.bin"
+    )
     if not is_exists(firmware_path):
         return
 
     # combine resources to firmware
-    resources_dir = f"{board_dir}/resources"
+    resources_dir = os.path.join(board_dir, "resources")
     # out firmware path
-    out_firmware = f"dist/{board}.{board_info['version']}.bin".lower()
+    out_firmware = os.path.join(
+        dist_dir, f"{board}.{board_info['version']}.bin".lower()
+    )
 
-    if not is_exists("dist"):
-        os.makedirs("dist")
+    if not is_exists(dist_dir):
+        os.makedirs(dist_dir)
 
     cmd_str = f"cp {firmware_path} {out_firmware}"
     if is_exists(resources_dir) and port == "esp32":
@@ -193,15 +204,17 @@ def build(board_info):
 
             for partition in partitions:
                 if partition[0] == "resource":
-                    cmd_str = f"python3 tools/combine/combine.py "
-                    cmd_str += f"--dir {resources_dir} "
-                    cmd_str += f"--address {partition[3].strip()} "
-                    cmd_str += f"--size {partition[4].strip()} "
+                    combine_path = os.path.join(root, "tools", "combine", "combine.py")
+                    cmd_str = f"python3 {combine_path}"
+                    cmd_str += f" --dir {resources_dir}"
+                    cmd_str += f" --address {partition[3].strip()}"
+                    cmd_str += f" --size {partition[4].strip()}"
                     if "flash offset" in board_info:
-                        cmd_str += f"--offset {hex(board_info['flash offset'])} "
-                    cmd_str += f"{firmware_path} {out_firmware}"
+                        cmd_str += f" --offset {hex(board_info['flash offset'])}"
+                    cmd_str += f" {firmware_path} {out_firmware}"
                     break
 
+    os.chdir(root)
     os.system(cmd_str)
 
     print("\nSuccessfully!")
@@ -242,7 +255,7 @@ def esp32_flash(board_info, firmware_path):
 
 if __name__ == "__main__":
     board = args.board.upper()
-    board_info = load_yaml(f"boards/{board}/boardinfo.yml")
+    board_info = load_yaml(os.path.join(root, "boards", board, "boardinfo.yml"))
 
     if board_info:
         board_info["id"] = board

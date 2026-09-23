@@ -5,6 +5,9 @@ import os
 
 import yaml
 
+root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+dist_dir = os.path.join(root, "dist")
+
 # add arguments
 #
 parser = argparse.ArgumentParser(description="MicroPython Board flasher.")
@@ -47,8 +50,9 @@ def esp32_flash(board_info, firmware_path):
             os.system(f"esptool.py --chip auto --port {args.port} erase_flash")
 
     if not firmware_path:
-        firmware_dir = "dist"
-        firmware_path = f"{firmware_dir}/{args.board}.{board_info['version']}.bin"
+        firmware_path = os.path.join(
+            dist_dir, f"{args.board}.{board_info['version']}.bin"
+        )
 
     if not is_exists(firmware_path):
         print(f"{firmware_path} does not exist.\n")
@@ -74,7 +78,7 @@ def esp32_flash(board_info, firmware_path):
 
 if __name__ == "__main__":
     board = args.board.upper()
-    board_info = load_yaml(f"boards/{board}/boardinfo.yml")
+    board_info = load_yaml(os.path.join(root, "boards", board, "boardinfo.yml"))
 
     if board_info["port"] == "esp32" and (args.port or args.P):
         esp32_flash(board_info, args.firmware)

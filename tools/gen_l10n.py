@@ -35,7 +35,7 @@ def load_yaml(file):
     return data
 
 
-def gen_l10n(board_info):
+def gen_l10n(board_info, dest_file):
     board = board_info["id"]
     port = board_info["port"]
 
@@ -56,7 +56,6 @@ def gen_l10n(board_info):
                     locales[name] = data
 
     l10n_file = l10n_template.substitute(locales=str(locales))
-    dest_file = f"lib/micropython/ports/{port}/boards/{board}/modules/l10n.py"
 
     with open(dest_file, "w") as f:
         f.write(l10n_file)
