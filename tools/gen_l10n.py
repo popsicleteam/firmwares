@@ -35,18 +35,14 @@ def load_yaml(file):
     return data
 
 
-def gen_l10n(board_info, dest_file):
-    board = board_info["id"]
-    port = board_info["port"]
-
-    l10n_file = ""
+def gen_l10n(l10n_dir, l10n_file):
+    l10n_content = ""
     locales = {}
 
-    l10n_path = f"boards/{board}/l10n"
-    if not os.path.exists(l10n_path):
+    if not os.path.exists(l10n_dir):
         return
 
-    for root, dirs, files in os.walk(l10n_path):
+    for root, dirs, files in os.walk(l10n_dir):
         for file in files:
             if file.endswith(".yml") or file.endswith(".yaml"):
                 file_path = os.path.join(root, file)
@@ -55,7 +51,7 @@ def gen_l10n(board_info, dest_file):
                 if data:
                     locales[name] = data
 
-    l10n_file = l10n_template.substitute(locales=str(locales))
+    l10n_content = l10n_template.substitute(locales=str(locales))
 
-    with open(dest_file, "w") as f:
-        f.write(l10n_file)
+    with open(l10n_file, "w") as f:
+        f.write(l10n_content)

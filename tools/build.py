@@ -153,8 +153,9 @@ def build(board_info):
         shutil.copy(file, destfile)
 
     # generate l10n file
+    l10n_dir = os.path.join(mpy_board_dir, "l10n")
     l10n_file = os.path.join(mpy_board_dir, "modules", "l10n.py")
-    gen_l10n(board_info, l10n_file)
+    gen_l10n(l10n_dir, l10n_file)
 
     # esp32 install idf components
     cmodules_file = os.path.join(mpy_board_dir, "cmodules.cmake")
