@@ -258,6 +258,11 @@ if __name__ == "__main__":
     board = args.board.upper()
     board_info = load_yaml(os.path.join(root, "boards", board, "boardinfo.yml"))
 
+    if not board_info:
+        print(f"Board {board} not found.\n")
+        parser.print_help()
+        exit(1)
+
     if board_info:
         board_info["id"] = board
 
