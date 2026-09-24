@@ -1,4 +1,4 @@
-#!python3
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import argparse
 import importlib
@@ -8,7 +8,7 @@ import shutil
 import sys
 
 import yaml
-from gen_l10n import gen_l10n
+from gen_lang import gen_lang
 
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 mpy_dir = os.path.join(root, "lib", "micropython")
@@ -121,9 +121,9 @@ def build(board_info):
     # git restore
 
     os.chdir(mpy_dir)
-    os.system("git checkout v1.29.0")
     os.system("git restore .")
     os.system("git clean -df")
+    os.system("git checkout v1.29.0")
 
     print("\nbuilding...\n")
 
@@ -155,7 +155,7 @@ def build(board_info):
     # generate l10n file
     l10n_dir = os.path.join(mpy_board_dir, "l10n")
     l10n_file = os.path.join(mpy_board_dir, "modules", "l10n.py")
-    gen_l10n(l10n_dir, l10n_file)
+    gen_lang(l10n_dir, l10n_file)
 
     # esp32 install idf components
     cmodules_file = os.path.join(mpy_board_dir, "cmodules.cmake")

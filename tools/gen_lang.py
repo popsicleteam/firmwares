@@ -35,7 +35,7 @@ def load_yaml(file):
     return data
 
 
-def gen_l10n(l10n_dir, l10n_file):
+def gen_lang(l10n_dir, l10n_file):
     l10n_content = ""
     locales = {}
 
