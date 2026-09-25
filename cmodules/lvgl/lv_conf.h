@@ -60,7 +60,7 @@
 
 #if LV_USE_STDLIB_MALLOC == LV_STDLIB_BUILTIN
     /** Size of memory available for `lv_malloc()` in bytes (>= 2kB) */
-    #define LV_MEM_SIZE (64 * 1024U)          /**< [bytes] */
+    #define LV_MEM_SIZE (128 * 1024U)          /**< [bytes] */
 
     /** Size of the memory expand for `lv_malloc()` in bytes */
     #define LV_MEM_POOL_EXPAND_SIZE 0
@@ -641,15 +641,15 @@ extern void mp_lv_deinit_gc();
  *  #define LV_FONT_CUSTOM_DECLARE   LV_FONT_DECLARE(my_font_1) LV_FONT_DECLARE(my_font_2)
  *  @endcode
  */
-#define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(font_puhui_14_1) LV_FONT_DECLARE(font_puhui_16_4)
+#define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(font_puhui_14) LV_FONT_DECLARE(font_puhui_16) LV_FONT_DECLARE(font_puhui_20)
 
 /** Always set a default font */
-#define LV_FONT_DEFAULT &font_puhui_14_1
+#define LV_FONT_DEFAULT &font_puhui_14
 
 /** Enable handling large font and/or fonts with a lot of characters.
  *  The limit depends on the font size, font face and bpp.
  *  A compiler error will be triggered if a font needs it. */
-#define LV_FONT_FMT_TXT_LARGE 0
+#define LV_FONT_FMT_TXT_LARGE 1
 
 /** Enables/disables support for compressed fonts. */
 #define LV_USE_FONT_COMPRESSED 0
