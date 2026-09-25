@@ -5,6 +5,7 @@ include("$(MOD_DIR)/blerepl")
 include("$(MOD_DIR)/macutils")
 include("$(MOD_DIR)/settings")
 
+include("$(MPY_DIR)/../lv_binding/ports/esp32")
 include("$(MOD_DIR)/lv_drivers/manifest.display.py")
 include("$(MOD_DIR)/lv_drivers/manifest.touch.py")
 
