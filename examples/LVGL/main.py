@@ -1,43 +1,72 @@
 import lvgl as lv
-from cst8xx import CST8xx
-from machine import I2C, SPI, Pin
-from st7789 import ST7789
+from cst3xx import Cst3xx
+from machine import SPI, Pin
+from st77xx import St7789
 
-disp_spi = SPI(
-    1,
-    baudrate=80_000_000,
-    sck=Pin(40, Pin.OUT),
-    mosi=Pin(45, Pin.OUT),
-    miso=Pin(46, Pin.IN),
-)
+# ============================================================
+# 1. 初始化显示与触摸
+# ============================================================
+spi = SPI(1, baudrate=80_000_000, sck=Pin(40), mosi=Pin(45))
+lcd = St7789(spi=spi, res=(240, 320), rst=39, dc=41, cs=42, bl=5, rot=0)
+lcd.set_backlight(100)
 
-lv.init()
+touch = Cst3xx(i2c_dev=1, sda=1, scl=3, rst_pin=2, irq_pin=4, width=240, height=320)
 
-lcd = ST7789(
-    spi=disp_spi,
-    res=(240, 320),
-    rot=ST7789.LANDSCAPE,
-    rst=39,
-    dc=41,
-    cs=42,
-    bl=5,
-    factor=8,
-)
-lcd.set_backlight(80)
+# ============================================================
+# 2. 构建 UI
+# ============================================================
+scr = lv.screen_active()
 
-touch_i2c = I2C(1, scl=Pin(3), sda=Pin(1), freq=400000)
-touch = CST8xx(
-    bus=touch_i2c,
-    res=(240, 320),
-    address=0x1A,
-    rst_pin=Pin(2),
-    irq_pin=Pin(4),
-)
+# ---------- 按钮 1 ----------
+btn1 = lv.button(scr)
+btn1.set_size(140, 60)
+btn1.align(lv.ALIGN.TOP_MID, 0, 40)
 
-scr = lv.obj()
-btn = lv.button(scr)
-lbl = lv.label(btn)
-lbl.set_text("Press me!")
-btn.center()
-btn.add_event(lambda event: print("Button clicked!"), lv.EVENT.CLICKED, None)
-lv.screen_load(scr)
+label1 = lv.label(btn1)
+label1.set_style_text_font(lv.font_puhui_20, 0)
+label1.set_text("点我")
+label1.center()
+
+
+def btn1_event_cb(evt):
+    code = evt.get_code()
+    if code == lv.EVENT.CLICKED:
+        print("[btn1] CLICKED")
+    elif code == lv.EVENT.PRESSED:
+        print("[btn1] PRESSED")
+        label1.set_text("已点击!")
+    elif code == lv.EVENT.RELEASED:
+        print("[btn1] RELEASED")
+        label1.set_text("点我")
+
+
+btn1.add_event_cb(btn1_event_cb, lv.EVENT.ALL, None)
+
+# ---------- 按钮 2 ----------
+btn2 = lv.button(scr)
+btn2.set_size(140, 60)
+btn2.align(lv.ALIGN.TOP_MID, 0, 130)
+
+label2 = lv.label(btn2)
+label2.set_style_text_font(lv.font_puhui_16, 0)
+label2.set_text("LED: 关")
+label2.center()
+
+led_state = [False]
+
+
+def btn2_event_cb(evt):
+    if evt.get_code() == lv.EVENT.CLICKED:
+        led_state[0] = not led_state[0]
+        print("[btn2] LED =", "开" if led_state[0] else "关")
+        label2.set_text("LED: " + ("开" if led_state[0] else "关"))
+
+
+btn2.add_event_cb(btn2_event_cb, lv.EVENT.CLICKED, None)
+
+# ---------- 状态栏 ----------
+status = lv.label(scr)
+status.set_text("触摸测试就绪")
+status.align(lv.ALIGN.BOTTOM_MID, 0, -20)
+
+print("UI 构建完成，等待触摸事件...")
