@@ -1,8 +1,8 @@
-# `camera` - 摄像头驱动
+# ESP-CAMERA
 
 Fork: [https://github.com/lemariva/micropython-camera-driver](https://github.com/lemariva/micropython-camera-driver)
 
-基于 [ESP32 Camera Driver](https://github.com/espressif/esp32-camera) 的 MicroPython 版本摄像头驱动，适用于 ESP32、ESP32S2、ESP32S3 芯片，支持多款摄像头。
+基于 [ESP32-CAMERA](https://github.com/espressif/esp32-camera) 的 MicroPython 版本摄像头驱动，适用于 ESP32、ESP32S2、ESP32S3 芯片，支持多款摄像头。
 
 ## 使用说明
 
@@ -76,7 +76,7 @@ Fork: [https://github.com/lemariva/micropython-camera-driver](https://github.com
 
 #### `camera.snapshot()`
 
-获取 1 帧静态图片。
+获取 1 帧图片数据。
 
 ### 画面设置函数
 

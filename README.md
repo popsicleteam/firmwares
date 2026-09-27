@@ -10,7 +10,6 @@
 - [cmodules](cmodules/): C 语言编写的 MicroPython 驱动和库
 - [examples](examples/): 示例代码
 - [lib](lib/): 第三方库引用
-- [micropython](micropython/): MicroPython 引用
 - [modules](modules/): MicroPython 编写的 MicroPython 驱动和库
 - [tools](tools/): 工具脚本
   - [combine](tools/combine/): 固件分区资源合并脚本
@@ -43,4 +42,4 @@ examples:
   ./tools/build.py -c -P -e s3_camera
 ```
 
-其中，`get_idf` 是一个用于获取 ESP-IDF 工具链的脚本。
+> 其中，`get_idf` 是一个用于获取 ESP-IDF 工具链的脚本。
