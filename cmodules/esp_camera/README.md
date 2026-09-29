@@ -78,6 +78,10 @@ Fork: [https://github.com/lemariva/micropython-camera-driver](https://github.com
 
 获取 1 帧图片数据。
 
+#### `camera.jpeg(quality)`
+
+拍摄 1 帧 JPEG 图片数据，可选设置 JPEG 质量，可选范围：0~63（低质量）。
+
 ### 画面设置函数
 
 #### `camera.framesize(framesize)`

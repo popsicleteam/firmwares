@@ -140,6 +140,13 @@ static mp_obj_t camera_init(mp_uint_t n_pos_args, const mp_obj_t* pos_args, mp_m
 
   bool camera = camera_init_helper(&camera_obj, n_pos_args, pos_args, kw_args);
   if (camera) {
+    // OV3660 need vflip.
+    sensor_t* s = esp_camera_sensor_get();
+    camera_sensor_info_t* info = esp_camera_sensor_get_info(&s->id);
+    if (info->model == CAMERA_OV3660) {
+      s->set_vflip(s, 1);
+    }
+
     return mp_const_true;
   } else {
     return mp_const_false;
@@ -173,6 +180,57 @@ static mp_obj_t camera_snapshot() {
   return image;
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(camera_snapshot_obj, camera_snapshot);
+
+static mp_obj_t camera_jpeg(size_t n_pos_args, const mp_obj_t* pos_args, mp_map_t* kw_args) {
+  enum { ARG_quality };
+  static const mp_arg_t allowed_args[] = {
+      {MP_QSTR_quality, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1}},
+  };
+  mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+  mp_arg_parse_all(n_pos_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+  int quality_arg = args[ARG_quality].u_int;
+
+  camera_fb_t* fb = esp_camera_fb_get();
+  if (!fb) {
+    ESP_LOGE(TAG, "Camera snapshot Failed");
+    return mp_const_false;
+  }
+
+  mp_obj_t image;
+
+  if (fb->format == PIXFORMAT_JPEG) {
+    image = mp_obj_new_bytes(fb->buf, fb->len);
+  } else {
+    int quality;
+    if (quality_arg >= 0) {
+      quality = 100 - quality_arg;
+    } else {
+      sensor_t* s = esp_camera_sensor_get();
+      if (s != NULL && s->status.quality >= 0) {
+        quality = 100 - s->status.quality;
+      } else {
+        quality = 80;
+      }
+    }
+
+    uint8_t* jpg_buf = NULL;
+    size_t jpg_len = 0;
+    bool converted = frame2jpg(fb, quality, &jpg_buf, &jpg_len);
+    if (!converted || jpg_buf == NULL) {
+      ESP_LOGE(TAG, "JPEG conversion failed");
+      esp_camera_fb_return(fb);
+      mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("JPEG conversion failed"));
+      return mp_const_false;
+    }
+    image = mp_obj_new_bytes(jpg_buf, jpg_len);
+    free(jpg_buf);
+  }
+
+  esp_camera_fb_return(fb);
+  return image;
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(camera_jpeg_obj, 0, camera_jpeg);
 
 static mp_obj_t camera_flip(mp_obj_t direction) {
   sensor_t* s = esp_camera_sensor_get();
@@ -312,9 +370,10 @@ static const mp_rom_map_elem_t camera_module_globals_table[] = {
     {MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&camera_init_obj)},
     {MP_ROM_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&camera_deinit_obj)},
     {MP_ROM_QSTR(MP_QSTR_snapshot), MP_ROM_PTR(&camera_snapshot_obj)},
+    {MP_ROM_QSTR(MP_QSTR_jpeg), MP_ROM_PTR(&camera_jpeg_obj)},
     {MP_ROM_QSTR(MP_QSTR_flip), MP_ROM_PTR(&camera_flip_obj)},
     {MP_ROM_QSTR(MP_QSTR_mirror), MP_ROM_PTR(&camera_mirror_obj)},
-    {MP_ROM_QSTR(MP_QSTR_framesize), MP_ROM_PTR(&camera_framesize_obj)},
+    // {MP_ROM_QSTR(MP_QSTR_framesize), MP_ROM_PTR(&camera_framesize_obj)},
     {MP_ROM_QSTR(MP_QSTR_quality), MP_ROM_PTR(&camera_quality_obj)},
     {MP_ROM_QSTR(MP_QSTR_contrast), MP_ROM_PTR(&camera_contrast_obj)},
     {MP_ROM_QSTR(MP_QSTR_saturation), MP_ROM_PTR(&camera_saturation_obj)},
