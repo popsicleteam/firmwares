@@ -84,10 +84,6 @@ Fork: [https://github.com/lemariva/micropython-camera-driver](https://github.com
 
 ### 画面设置函数
 
-#### `camera.framesize(framesize)`
-
-重新设置分辨率（帧尺寸），参数具体值见前文。
-
 #### `camera.quality(quality)`
 
 重新设置 JPEG 质量，可选范围：0~63（低质量）。
