@@ -2,6 +2,8 @@ import _st77xx
 from _st77xx import (
     ST77XX_INV_LANDSCAPE,
     ST77XX_INV_PORTRAIT,
+    ST77XX_INVOFF,
+    ST77XX_INVON,
     ST77XX_LANDSCAPE,
     ST77XX_PORTRAIT,
     St77xx_hw,
@@ -24,7 +26,8 @@ _st77xx.ST77XX_COL_ROW_MODEL_START_ROTMAP = {
 
 
 class St7789(St7789_hw, St77xx_lvgl):
-    def __init__(self, res, doublebuffer=True, factor=4, **kw):
+    def __init__(self, res, doublebuffer=True, factor=4, inv=False, **kw):
+        self.inv = inv
         St77xx_hw.__init__(
             self,
             res=res,
@@ -40,3 +43,10 @@ class St7789(St7789_hw, St77xx_lvgl):
             **kw,
         )
         St77xx_lvgl.__init__(self, doublebuffer, factor)
+
+    def config_hw(self):
+        super().config_hw()
+        if self.inv:
+            self.write_register(ST77XX_INVON, None)
+        else:
+            self.write_register(ST77XX_INVOFF, None)
