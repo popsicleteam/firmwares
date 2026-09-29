@@ -68,7 +68,7 @@ def install_idf_comps(components):
 def get_idf_comps(board, file):
     components = []
     pattern = re.compile(
-        r"\$\{((?:C_MODULES_DIR|MICROPY_BOARD_DIR))\}(?:/cmodules)?/([^/]+)/micropython\.cmake\)$"
+        r"\$\{((?:C_MODULES_DIR|MICROPY_BOARD_DIR))\}(?:/cmodules)?/([^/]*)/?micropython\.cmake\)$"
     )
     with open(file) as f:
         lines = f.readlines()
@@ -76,13 +76,18 @@ def get_idf_comps(board, file):
             match = pattern.search(line)
             if match:
                 mod_name = match.group(2)
-                yml_path = (
-                    os.path.join(root, "cmodules", mod_name, "idf_component.yml")
-                    if match.group(1) == "C_MODULES_DIR"
-                    else os.path.join(
+                if match.group(1) == "C_MODULES_DIR":
+                    yml_path = os.path.join(
+                        root, "cmodules", mod_name, "idf_component.yml"
+                    )
+                elif mod_name:
+                    yml_path = os.path.join(
                         root, "boards", board, "cmodules", mod_name, "idf_component.yml"
                     )
-                )
+                else:
+                    yml_path = os.path.join(
+                        root, "boards", board, "cmodules", "idf_component.yml"
+                    )
                 idf_comps = load_yaml(yml_path)
                 if idf_comps:
                     for comp_name, comp_ver in idf_comps["dependencies"].items():
