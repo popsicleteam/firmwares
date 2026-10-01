@@ -13,7 +13,9 @@ dist_dir = os.path.join(root, "dist")
 parser = argparse.ArgumentParser(description="MicroPython Board flasher.")
 parser.add_argument("board", help="board name")
 parser.add_argument("-p", "--port", help="device port")
-parser.add_argument("-P", action="store_true", help="use default device port")
+parser.add_argument(
+    "-P", action="store_true", default=True, help="use default device port"
+)
 parser.add_argument("-e", "--erase", action="store_true", help="erase device flash")
 parser.add_argument("-f", "--firmware", help="firmware path")
 args = parser.parse_args()
@@ -43,7 +45,7 @@ def load_yaml(file):
 #
 def esp32_flash(board_info, firmware_path):
     if args.erase:
-        print("cleaning flash...\n")
+        print("[INFO] Cleaning flash...\n")
         if args.P:
             os.system("esptool.py --chip auto erase_flash")
         else:
@@ -55,24 +57,21 @@ def esp32_flash(board_info, firmware_path):
         )
 
     if not is_exists(firmware_path):
-        print(f"{firmware_path} does not exist.\n")
+        print(f"[INFO] {firmware_path} does not exist.\n")
         exit(1)
 
-    print(f"{firmware_path} is ready.\n")
-
-    print(f"uploading firmware...\n")
+    print(f"[INFO] Uploading firmware...\n")
 
     flash_offset = (
         hex(board_info["flash offset"]) if "flash offset" in board_info else 0
     )
-    if args.P:
-        print(f"esptool.py --chip auto write_flash -z {flash_offset} {firmware_path}")
+    if args.port:
         os.system(
-            f"esptool.py --chip auto write_flash -z {flash_offset} {firmware_path}"
+            f"esptool.py --chip auto --port {args.port} write_flash -z {flash_offset} {firmware_path}"
         )
     else:
         os.system(
-            f"esptool.py --chip auto --port {args.port} write_flash -z {flash_offset} {firmware_path}"
+            f"esptool.py --chip auto write_flash -z {flash_offset} {firmware_path}"
         )
 
 
@@ -80,5 +79,10 @@ if __name__ == "__main__":
     board = args.board.upper()
     board_info = load_yaml(os.path.join(root, "boards", board, "boardinfo.yml"))
 
-    if board_info["port"] == "esp32" and (args.port or args.P):
+    if not board_info:
+        print(f"[ERROR] Board {board} not found.\n")
+        parser.print_help()
+        exit(1)
+
+    if board_info["port"] == "esp32":
         esp32_flash(board_info, args.firmware)

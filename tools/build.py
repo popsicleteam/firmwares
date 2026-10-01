@@ -33,7 +33,7 @@ if not args.board:
 # clean
 #
 def clean(board_info):
-    print("\ncleaning...\n")
+    print("\n[INFO] Cleaning...\n")
 
     board = board_info["id"]
     port = board_info["port"]
@@ -130,7 +130,7 @@ def build(board_info):
     os.system("git clean -df")
     os.system("git checkout v1.29.0")
 
-    print("\nbuilding...\n")
+    print("\n[INFO] Building...\n")
 
     board = board_info["id"]
     port = board_info["port"]
@@ -165,6 +165,7 @@ def build(board_info):
     # esp32 install idf components
     cmodules_file = os.path.join(mpy_board_dir, "cmodules.cmake")
     if port == "esp32" and is_exists(cmodules_file):
+        print("\n[INFO] Installing IDF components...\n")
         idf_components = get_idf_comps(board, cmodules_file)
         install_idf_comps(idf_components)
 
@@ -202,11 +203,14 @@ def build(board_info):
     if not is_exists(dist_dir):
         os.makedirs(dist_dir)
 
+    if is_exists(out_firmware):
+        os.remove(out_firmware)
+
     cmd_str = f"cp {firmware_path} {out_firmware}"
     if is_exists(resources_dir) and port == "esp32":
         partitions = read_partitions_from(board_files)
         if partitions:
-            print("\ncombining resources...\n")
+            print("\n[INFO] Combining resources...\n")
 
             for partition in partitions:
                 if partition[0] == "resource":
@@ -223,28 +227,26 @@ def build(board_info):
     os.chdir(root)
     os.system(cmd_str)
 
-    print("\nSuccessfully!")
-    print(f"Generated {out_firmware}")
-    return out_firmware
+    if is_exists(out_firmware):
+        print(f"\n[INFO] Generated {out_firmware}")
+        return out_firmware
 
 
 # esp32 flash firmware
 #
 def esp32_flash(board_info, firmware_path):
     if args.erase:
-        print("\ncleaning flash...\n")
+        print("\n[INFO] Cleaning flash...\n")
         if args.P:
             os.system("esptool.py --chip auto erase_flash")
         else:
             os.system(f"esptool.py --chip auto --port {args.port} erase_flash")
 
     if not is_exists(firmware_path):
-        print(f'"{firmware_path}" does not exist.\n')
+        print(f'[ERROR] "{firmware_path}" does not exist.\n')
         exit(1)
 
-    print(f"\n{firmware_path} is ready.")
-
-    print("\nuploading firmware...\n")
+    print("\n[INFO] Uploading firmware...\n")
 
     flash_offset = (
         hex(board_info["flash offset"]) if "flash offset" in board_info else 0
@@ -264,7 +266,7 @@ if __name__ == "__main__":
     board_info = load_yaml(os.path.join(root, "boards", board, "boardinfo.yml"))
 
     if not board_info:
-        print(f"Board {board} not found.\n")
+        print(f"[ERROR] Board {board} not found.\n")
         parser.print_help()
         exit(1)
 
