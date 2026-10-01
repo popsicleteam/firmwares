@@ -46,7 +46,7 @@ static bool camera_init_helper(camera_obj_t* camera, size_t n_pos_args, const mp
   };
 
   static const mp_arg_t allowed_args[] = {
-      {MP_QSTR_format, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = PIXFORMAT_JPEG}},
+      {MP_QSTR_format, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = PIXFORMAT_RGB565}},
       {MP_QSTR_framesize, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = FRAMESIZE_VGA}},
       {MP_QSTR_quality, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 12}},
       {MP_QSTR_d0, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = CAM_PIN_D0}},
@@ -65,9 +65,9 @@ static bool camera_init_helper(camera_obj_t* camera, size_t n_pos_args, const mp
       {MP_QSTR_xclk, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = CAM_PIN_XCLK}},
       {MP_QSTR_sda, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = CAM_PIN_SIOD}},
       {MP_QSTR_scl, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = CAM_PIN_SIOC}},
-      {MP_QSTR_xclk_freq, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = XCLK_FREQ_10MHz}},
-      {MP_QSTR_fb_size, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 1}},
-      {MP_QSTR_fb_location, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = CAMERA_FB_IN_DRAM}},
+      {MP_QSTR_xclk_freq, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = XCLK_FREQ_20MHz}},
+      {MP_QSTR_fb_size, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 2}},
+      {MP_QSTR_fb_location, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = CAMERA_FB_IN_PSRAM}},
   };
 
   mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
