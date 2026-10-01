@@ -15,3 +15,5 @@ require("aioespnow")
 require("aiohttp")
 require("ntptime")
 require("umqtt.simple")
+
+freeze("modules")
