@@ -68,7 +68,7 @@ Fork: [https://github.com/lemariva/micropython-camera-driver](https://github.com
   - `scl`，SCL 引脚，默认值：5（M5Stack AtomS3R CAM 引脚值）
   - `xclk_freq`，XCLK 信号频率，默认值：`camera.XCLK_10MHz`，可选值：`camera.XCLK_20MHz`
   - `fb_size`，帧缓存数量，默认值：1
-  - `fb_location`，帧缓存区，默认值：`camera.DRAM`，可选值：`camera.PSRAM`
+  - `fb_location`，帧缓存区，默认值：`camera.FB_DRAM`，可选值：`camera.FB_PSRAM`
 
 #### `camera.deinit()`
 

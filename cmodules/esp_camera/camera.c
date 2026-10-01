@@ -140,13 +140,6 @@ static mp_obj_t camera_init(mp_uint_t n_pos_args, const mp_obj_t* pos_args, mp_m
 
   bool camera = camera_init_helper(&camera_obj, n_pos_args, pos_args, kw_args);
   if (camera) {
-    // OV3660 need vflip.
-    sensor_t* s = esp_camera_sensor_get();
-    camera_sensor_info_t* info = esp_camera_sensor_get_info(&s->id);
-    if (info->model == CAMERA_OV3660) {
-      s->set_vflip(s, 1);
-    }
-
     return mp_const_true;
   } else {
     return mp_const_false;
@@ -204,10 +197,11 @@ static mp_obj_t camera_jpeg(size_t n_pos_args, const mp_obj_t* pos_args, mp_map_
   } else {
     int quality;
     if (quality_arg >= 0) {
+      if (quality_arg > 63) quality_arg = 63;
       quality = 100 - quality_arg;
     } else {
       sensor_t* s = esp_camera_sensor_get();
-      if (s != NULL && s->status.quality >= 0) {
+      if (s != NULL) {
         quality = 100 - s->status.quality;
       } else {
         quality = 80;
@@ -256,28 +250,6 @@ static mp_obj_t camera_mirror(mp_obj_t direction) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(camera_mirror_obj, camera_mirror);
 
-static mp_obj_t camera_framesize(mp_obj_t what) {
-  sensor_t* s = esp_camera_sensor_get();
-  if (!s) {
-    ESP_LOGE(TAG, "Framesize Failed");
-    return mp_const_false;
-  }
-  int size = mp_obj_get_int(what);
-  /* same as in screen.h */
-  if ((size != FRAMESIZE_96X96) && (size != FRAMESIZE_QQVGA) && (size != FRAMESIZE_QCIF) && (size != FRAMESIZE_HQVGA) &&
-      (size != FRAMESIZE_240X240) && (size != FRAMESIZE_QVGA) && (size != FRAMESIZE_CIF) && (size != FRAMESIZE_HVGA) && (size != FRAMESIZE_VGA) &&
-      (size != FRAMESIZE_SVGA) && (size != FRAMESIZE_XGA) && (size != FRAMESIZE_HD) && (size != FRAMESIZE_SXGA) && (size != FRAMESIZE_UXGA) &&
-      (size != FRAMESIZE_FHD) && (size != FRAMESIZE_P_HD) && (size != FRAMESIZE_P_3MP) && (size != FRAMESIZE_QXGA) && (size != FRAMESIZE_QHD) &&
-      (size != FRAMESIZE_WQXGA) && (size != FRAMESIZE_P_FHD) && (size != FRAMESIZE_QSXGA)) {
-    mp_raise_ValueError(MP_ERROR_TEXT("Image framesize is not valid"));
-  }
-
-  s->set_framesize(s, size);
-
-  return mp_const_none;
-}
-static MP_DEFINE_CONST_FUN_OBJ_1(camera_framesize_obj, camera_framesize);
-
 static mp_obj_t camera_quality(mp_obj_t what) {
   sensor_t* s = esp_camera_sensor_get();
   if (!s) {
@@ -285,6 +257,8 @@ static mp_obj_t camera_quality(mp_obj_t what) {
     return mp_const_false;
   }
   int val = mp_obj_get_int(what);  // 10-63 lower number means higher quality
+  if (val < 0) val = 0;
+  if (val > 63) val = 63;
   s->set_quality(s, val);
   return mp_const_none;
 }
@@ -373,7 +347,6 @@ static const mp_rom_map_elem_t camera_module_globals_table[] = {
     {MP_ROM_QSTR(MP_QSTR_jpeg), MP_ROM_PTR(&camera_jpeg_obj)},
     {MP_ROM_QSTR(MP_QSTR_flip), MP_ROM_PTR(&camera_flip_obj)},
     {MP_ROM_QSTR(MP_QSTR_mirror), MP_ROM_PTR(&camera_mirror_obj)},
-    // {MP_ROM_QSTR(MP_QSTR_framesize), MP_ROM_PTR(&camera_framesize_obj)},
     {MP_ROM_QSTR(MP_QSTR_quality), MP_ROM_PTR(&camera_quality_obj)},
     {MP_ROM_QSTR(MP_QSTR_contrast), MP_ROM_PTR(&camera_contrast_obj)},
     {MP_ROM_QSTR(MP_QSTR_saturation), MP_ROM_PTR(&camera_saturation_obj)},
@@ -427,8 +400,8 @@ static const mp_rom_map_elem_t camera_module_globals_table[] = {
     {MP_ROM_QSTR(MP_QSTR_XCLK_10MHz), MP_ROM_INT(XCLK_FREQ_10MHz)},
     {MP_ROM_QSTR(MP_QSTR_XCLK_20MHz), MP_ROM_INT(XCLK_FREQ_20MHz)},
 
-    {MP_ROM_QSTR(MP_QSTR_DRAM), MP_ROM_INT(CAMERA_FB_IN_DRAM)},
-    {MP_ROM_QSTR(MP_QSTR_PSRAM), MP_ROM_INT(CAMERA_FB_IN_PSRAM)},
+    {MP_ROM_QSTR(MP_QSTR_FB_DRAM), MP_ROM_INT(CAMERA_FB_IN_DRAM)},
+    {MP_ROM_QSTR(MP_QSTR_FB_PSRAM), MP_ROM_INT(CAMERA_FB_IN_PSRAM)},
 };
 
 static MP_DEFINE_CONST_DICT(camera_module_globals, camera_module_globals_table);
